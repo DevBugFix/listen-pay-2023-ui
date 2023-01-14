@@ -70,14 +70,14 @@
         </div>
       </div>
     </div>
-    
+
   </header>
     <div class="wrapper">
       <div class="page-holder">
         <div class="inner-content-box">
           <main class="main">
             <div class="btn-sidebar-holder">
-              <button type="button" class="btn-sidebar">Profile</button>
+              <button type="button" class="btn-sidebar" (click)="onProfileBtn()">Profile</button>
             </div>
             <div class="container-fluid dashboard">
               <div class="row justify-content-center mx-n1">
@@ -172,30 +172,30 @@
       <a href="#" class="text-decoration-none">msilvasy@aol.com</a>
       <ul class="footer-list d-flex justify-content-center align-items-center m-0 mt-15">
         <li class="mx-10 mx-md-20 mx-lg-40 mx-xl-50">
-          <a href="#">
-            <img src="assets/images/icon-app.png" srcset="assets/images/icon-app-2x.png 2x" alt="logo description" />
+          <a href="#" (click)="onAppLink()">
+            <img src="assets/images/icon-app.png" [ngClass]="{'selectedFooter': selectedFooterBtn==footerBtnRef.App}" srcset="assets/images/icon-app-2x.png 2x" alt="logo description" />
           </a>
         </li>
         <li class="mx-10 mx-md-20 mx-lg-40 mx-xl-50">
-          <a href="#">
-            <img src="assets/images/icon-stats.png" srcset="assets/images/icon-stats-2x.png 2x" alt="logo description" />
+          <a href="#" (click)="onanalyticsLink()">
+            <img src="assets/images/icon-stats.png" [ngClass]="{'selectedFooter': selectedFooterBtn==footerBtnRef.Analytics}" srcset="assets/images/icon-stats-2x.png 2x" alt="logo description" />
           </a>
         </li>
         <li class="mx-10 mx-md-20 mx-lg-40 mx-xl-50">
-          <a href="#">
-            <img src="assets/images/icon-user.png" srcset="assets/images/icon-user-2x.png 2x" alt="account" />
+          <a href="#" (click)="onUserLink()">
+            <img src="assets/images/icon-user.png" [ngClass]="{'selectedFooter': selectedFooterBtn==footerBtnRef.User || selectedFooterBtn==footerBtnRef.Login}" srcset="assets/images/icon-user-2x.png 2x" alt="account" />
           </a>
         </li>
         <li class="mx-10 mx-md-20 mx-lg-40 mx-xl-50">
-          <a href="#">
-            <img src="assets/images/icon-gift.png" srcset="assets/images/icon-gift-2x.png 2x" alt="logo description" />
+          <a href="#" (click)="ongiftLink()">
+            <img src="assets/images/icon-gift.png" [ngClass]="{'selectedFooter': selectedFooterBtn==footerBtnRef.Gift}" srcset="assets/images/icon-gift-2x.png 2x" alt="logo description" />
           </a>
         </li>
         <li class="mx-10 mx-md-20 mx-lg-40 mx-xl-50">
-          <a href="#">
-            <img src="assets/images/icon-faq.png" srcset="assets/images/icon-faq-2x.png 2x" alt="logo description" />
+          <a href="#" (click)="onFaqLink()">
+            <img src="assets/images/icon-faq.png" [ngClass]="{'selectedFooter': selectedFooterBtn==footerBtnRef.Faq}" srcset="assets/images/icon-faq-2x.png 2x" alt="logo description" />
           </a>
         </li>
       </ul>
     </footer>
-    
+
