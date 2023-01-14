@@ -5,6 +5,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ConfigService } from './services/config.service';
 import { JwtInterceptor } from './helpers/token.interceptor';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 
 
 export function initializeApp(configService: ConfigService) {
@@ -15,12 +16,15 @@ export function initializeApp(configService: ConfigService) {
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
+    FormsModule,
+    ReactiveFormsModule
   ],
   providers: [
     { provide: APP_INITIALIZER, useFactory: initializeApp, deps: [ConfigService], multi: true },

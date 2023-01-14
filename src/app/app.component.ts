@@ -1,5 +1,10 @@
 import { Component } from '@angular/core';
+import { NgModel } from '@angular/forms';
+import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import { Constants } from './helpers/constants';
 import { footerBtn } from './helpers/enums';
+import { AccountModel } from './models/account.model';
+import { AccountService } from './services/account.service';
 declare var $: any;
 
 @Component({
@@ -11,7 +16,102 @@ export class AppComponent {
   title = 'ListenPay "Listen|Earn|Redeem"';
   public footerBtnRef = footerBtn;
   public selectedFooterBtn: footerBtn = footerBtn.None;
+  emailValue: string;
+  emailChanged: Subject<string>;
+  emailPattern = '^[a-z0-9._%+-]+@[a-z0-9.-]+.[a-z]{2,4}$';
+  key: string;
+  earned: number; ''
 
+  constructor(private accountService: AccountService
+  ) {
+    this.emailChanged = new Subject<string>();
+  }
+
+  ngOnInit(): void {
+    this.emailChanged
+      .asObservable()
+      .pipe(debounceTime(1000))
+      .pipe(distinctUntilChanged())
+      .subscribe((value) => {
+        this.login(value);
+      });
+
+    this.accountService.listenPayAccountSubject.subscribe((earned) => {
+      this.earned = earned?.earned ? earned.earned : 0;
+    });
+
+    this.accountService.listenPayAccountSubject.subscribe((account) => {
+      this.emailValue = account?.email;
+      this.key = account?.key;
+      this.earned = account?.earned;
+    });
+  }
+  private login(email: string) {
+    this.accountService.listenPayLogin(email).subscribe(
+      (result) => {
+        if (result) {
+          console.log(result);
+          this.key = result.key;
+          this.earned = result.earned;
+          // this.balance = result.balance;
+        } else {
+          this.key = 'No account, click key generate #haskey!';
+        }
+      },
+      (err) => {
+        this.key = 'No account, click key generate #haskey!';
+      }
+    );
+  }
+  public get getPoint() {
+    return this.userInfo && this.userInfo?.earned > 0
+      ? this.userInfo.earned
+      : 0;
+  }
+  public get getEmail() {
+    return this.userInfo && this.userInfo?.email.length
+      ? this.userInfo.email
+      : '';
+  }
+
+  get userInfo(): AccountModel {
+    return JSON.parse(localStorage.getItem(Constants.LIST_PAY_ACCOUNT_KEY));
+  }
+  get isUserLoggedIn(): boolean {
+    return this.userInfo && this.userInfo?.key?.length > 0 && this.userInfo.email.length > 0;
+  }
+
+  signOut(): void {
+    this.accountService.signout();
+    this.emailValue = '';
+    this.key = '';
+  }
+
+  createAccount(email) {
+    console.log("email", email)
+    if (!email.invalid) {
+      this.accountService.registerUser(email.value).subscribe(
+        (account) => {
+          if (account !== null) {
+            this.key = account.key;
+            this.earned = account.earned;
+          } else {
+            this.key = 'Error registering user!';
+          }
+        },
+        (err) => {
+          this.key = 'Enter valid email to generate #haskey!';
+        }
+      );
+    }
+  }
+  onEmailChanged(email: NgModel) {
+    if (!email.invalid) {
+      this.emailChanged.next(email.value);
+    } else {
+      this.key = 'Enter valid email address';
+    }
+  }
   onProfileBtn() {
     if ($('.dashboard').is(":visible")) {
       $(".btn-sidebar-holder").hide();
@@ -48,7 +148,7 @@ export class AppComponent {
       this.selectedFooterBtn = this.footerBtnRef.Login
     } else if (this.selectedFooterBtn == this.footerBtnRef.Login) {
       this.selectedFooterBtn = this.footerBtnRef.User;
-    }else {
+    } else {
       this.selectedFooterBtn = this.footerBtnRef.Login;
     }
     this.toogleLoginUser();
