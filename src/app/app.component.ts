@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { NgModel } from '@angular/forms';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { Constants } from './helpers/constants';
@@ -12,177 +12,39 @@ declare var $: any;
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss']
 })
-export class AppComponent {
-  title = 'ListenPay "Listen|Earn|Redeem"';
-  public footerBtnRef = footerBtn;
-  public selectedFooterBtn: footerBtn = footerBtn.None;
-  emailValue: string;
-  emailChanged: Subject<string>;
-  emailPattern = '^[a-z0-9._%+-]+@[a-z0-9.-]+.[a-z]{2,4}$';
-  key: string;
-  earned: number; ''
 
-  constructor(private accountService: AccountService
-  ) {
-    this.emailChanged = new Subject<string>();
+export class AppComponent implements OnInit {
+  title = 'ListenPay.io "Listen|Earn|Redeem"';
+  isCollapsed = true;
+  isOverlayed = true;
+  constructor(
+    // private bsModalService: BsModalService, private titleService: Title 
+    ) {
+
+  }
+
+  public setTitle(newTitle: string) {
+    // this.titleService.setTitle(newTitle);
   }
 
   ngOnInit(): void {
-    this.emailChanged
-      .asObservable()
-      .pipe(debounceTime(1000))
-      .pipe(distinctUntilChanged())
-      .subscribe((value) => {
-        this.login(value);
-      });
-
-    this.accountService.listenPayAccountSubject.subscribe((earned) => {
-      this.earned = earned?.earned ? earned.earned : 0;
-    });
-
-    this.accountService.listenPayAccountSubject.subscribe((account) => {
-      this.emailValue = account?.email;
-      this.key = account?.key;
-      this.earned = account?.earned;
-    });
-  }
-  private login(email: string) {
-    this.accountService.listenPayLogin(email).subscribe(
-      (result) => {
-        if (result) {
-          console.log(result);
-          this.key = result.key;
-          this.earned = result.earned;
-          // this.balance = result.balance;
-        } else {
-          this.key = 'No account, click key generate #haskey!';
-        }
-      },
-      (err) => {
-        this.key = 'No account, click key generate #haskey!';
-      }
-    );
-  }
-  public get getPoint() {
-    return this.userInfo && this.userInfo?.earned > 0
-      ? this.userInfo.earned
-      : 0;
-  }
-  public get getEmail() {
-    return this.userInfo && this.userInfo?.email.length
-      ? this.userInfo.email
-      : '';
+    // this.setTitle("ListenPay Listen|Earn|Redeem");
   }
 
-  get userInfo(): AccountModel {
-    return JSON.parse(localStorage.getItem(Constants.LIST_PAY_ACCOUNT_KEY));
-  }
-  get isUserLoggedIn(): boolean {
-    return this.userInfo && this.userInfo?.key?.length > 0 && this.userInfo.email.length > 0;
-  }
+  // showModal() {
+  // var  config = {
+  //     animated: true,
+  //     backdrop:true,
+  //     class: "modal-lg  modal-xl  modal-dialog  modal-dialog-centered white-container", ignoreBackdropClick: true
+  //   };
+  //   console.log('annanann');
+  //   const modal = this.bsModalService.show(ModalDashboardComponent, config);
+  //   (<ModalDashboardComponent>modal.content).initialize();
+  //   (<ModalDashboardComponent>modal.content).onClose.subscribe((res) => {
+  //     console.log("re",res);
+  //   });
 
-  signOut(): void {
-    this.accountService.signout();
-    this.emailValue = '';
-    this.key = '';
-  }
 
-  createAccount(email) {
-    console.log("email", email)
-    if (!email.invalid) {
-      this.accountService.registerUser(email.value).subscribe(
-        (account) => {
-          if (account !== null) {
-            this.key = account.key;
-            this.earned = account.earned;
-          } else {
-            this.key = 'Error registering user!';
-          }
-        },
-        (err) => {
-          this.key = 'Enter valid email to generate #haskey!';
-        }
-      );
-    }
-  }
-  onEmailChanged(email: NgModel) {
-    if (!email.invalid) {
-      this.emailChanged.next(email.value);
-    } else {
-      this.key = 'Enter valid email address';
-    }
-  }
-  onProfileBtn() {
-    if ($('.dashboard').is(":visible")) {
-      $(".btn-sidebar-holder").hide();
-      $(".dashboard").stop(true, true).hide("slide", {
-        direction: "left"
-      }, 200, function () {
-        $(".login").show();
-        $(".wrapper").addClass("loginScreen");
-      });
-    }
-    this.selectedFooterBtn = this.footerBtnRef.Login;
   }
 
 
-  onAppLink() {
-    console.log("onFooterLink")
-    this.selectedFooterBtn = this.footerBtnRef.App;
-    this.toogleLoginUser();
-  }
-
-  onanalyticsLink() {
-    console.log("onanalyticsLink")
-    this.selectedFooterBtn = this.footerBtnRef.Analytics;
-    this.toogleLoginUser();
-  }
-
-  onUserLink() {
-    console.log("onUserLink()");
-
-    if (this.selectedFooterBtn == this.footerBtnRef.None) {
-      this.selectedFooterBtn = this.footerBtnRef.Login
-    }
-    else if (this.selectedFooterBtn == this.footerBtnRef.User) {
-      this.selectedFooterBtn = this.footerBtnRef.Login
-    } else if (this.selectedFooterBtn == this.footerBtnRef.Login) {
-      this.selectedFooterBtn = this.footerBtnRef.User;
-    } else {
-      this.selectedFooterBtn = this.footerBtnRef.Login;
-    }
-    this.toogleLoginUser();
-  }
-
-  ongiftLink() {
-    console.log("ongiftLink")
-    this.selectedFooterBtn = this.footerBtnRef.Gift;
-    this.toogleLoginUser();
-  }
-
-  onFaqLink() {
-    console.log("onFaqLink")
-    this.selectedFooterBtn = this.footerBtnRef.Faq;
-    this.toogleLoginUser();
-  }
-
-  toogleLoginUser() {
-    if (this.selectedFooterBtn == this.footerBtnRef.Login) {
-      $(".btn-sidebar-holder").hide();
-      $(".dashboard").stop(true, true).hide("slide", {
-        direction: "left"
-      }, 200, function () {
-        $(".login").show();
-        $(".wrapper").addClass("loginScreen");
-      });
-    } else {
-      $(".login").hide();
-      $(".wrapper").removeClass("loginScreen");
-      $(".dashboard").stop(true, true).show("slide", {
-        direction: "left"
-      }, 200, function () {
-        $(".btn-sidebar-holder").show();
-      });
-    }
-  }
-}
